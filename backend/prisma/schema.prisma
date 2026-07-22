@@ -3,15 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  ADMIN
-  SALES
-  WAREHOUSE
-  ACCOUNTS
+  provider = "sqlite"
 }
 
 model User {
@@ -19,24 +11,12 @@ model User {
   name         String
   email        String   @unique
   passwordHash String
-  role         Role
+  role         String
   createdAt    DateTime @default(now())
 
   notes        FollowUpNote[]
   movements    StockMovement[]
   challans     Challan[]
-}
-
-enum CustomerType {
-  RETAIL
-  WHOLESALE
-  DISTRIBUTOR
-}
-
-enum CustomerStatus {
-  LEAD
-  ACTIVE
-  INACTIVE
 }
 
 model Customer {
@@ -46,9 +26,9 @@ model Customer {
   email        String
   businessName String
   gstNumber    String?
-  type         CustomerType
+  type         String
   address      String
-  status       CustomerStatus
+  status       String
   followUpDate DateTime?
   createdAt    DateTime       @default(now())
 
@@ -81,27 +61,16 @@ model Product {
   challanItems  ChallanItem[]
 }
 
-enum MovementType {
-  IN
-  OUT
-}
-
 model StockMovement {
   id         String       @id @default(uuid())
   productId  String
   product    Product      @relation(fields: [productId], references: [id])
   qtyChanged Int
-  type       MovementType
+  type       String
   reason     String
   createdBy  String
   user       User         @relation(fields: [createdBy], references: [id])
   createdAt  DateTime     @default(now())
-}
-
-enum ChallanStatus {
-  DRAFT
-  CONFIRMED
-  CANCELLED
 }
 
 model Challan {
@@ -109,7 +78,7 @@ model Challan {
   challanNumber String        @unique
   customerId    String
   customer      Customer      @relation(fields: [customerId], references: [id])
-  status        ChallanStatus @default(DRAFT)
+  status        String        @default("DRAFT")
   totalQty      Int
   createdBy     String
   user          User          @relation(fields: [createdBy], references: [id])
